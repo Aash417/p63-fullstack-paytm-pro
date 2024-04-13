@@ -7,6 +7,8 @@ export const GET = async () => {
 		data: {
 			email: 'one',
 			name: 'one',
+			number: 'one',
+			password: 'one',
 		},
 	});
 
