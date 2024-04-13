@@ -1,7 +1,8 @@
 import db from '@repo/db/client';
 import express, { Request, Response } from 'express';
-const app = express();
 
+
+const app = express();
 app.use(express.json());
 
 app.post('/bankWebhook', async (req: Request, res: Response) => {
@@ -51,4 +52,9 @@ app.post('/bankWebhook', async (req: Request, res: Response) => {
 	}
 });
 
-app.listen(3003);
+app.get('/', (req, res) => {
+	console.log('in');
+	res.json({ msg: 'working' });
+});
+
+app.listen(3003, () => console.log('running on 3003'));
