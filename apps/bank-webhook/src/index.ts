@@ -18,37 +18,29 @@ app.post('/bankWebhook', async (req: Request, res: Response) => {
 	};
 
 	try {
+		const balance = await db.onRampTransaction.findFirst({
+			where: { token: paymentInformation.token },
+			select: { status: true },
+		});
+		if (!balance || balance.status !== 'Processing')
+			return res.status(403).json({ message: 'This request can not be processed as the transaction has been already completed.' });
+
 		await db.$transaction([
-			db.balance.updateMany({
-				where: {
-					userId: Number(paymentInformation.userId),
-				},
-				data: {
-					amount: {
-						// You can also get this from your DB
-						increment: Number(paymentInformation.amount),
-					},
-				},
+			db.onRampTransaction.updateMany({
+				where: { token: paymentInformation.token },
+				data: { status: 'Success' },
 			}),
 
-			db.onRampTransaction.updateMany({
-				where: {
-					token: paymentInformation.token,
-				},
-				data: {
-					status: 'Success',
-				},
+			db.balance.updateMany({
+				where: { userId: Number(paymentInformation.userId) },
+				data: { amount: { increment: Number(paymentInformation.amount) } },
 			}),
 		]);
 
-		res.json({
-			message: 'Captured',
-		});
+		res.json({ message: 'Successfully made the payment' });
 	} catch (e) {
 		console.error(e);
-		res.status(411).json({
-			message: 'Error while processing webhook',
-		});
+		res.status(411).json({ message: 'Error while processing webhook' });
 	}
 });
 

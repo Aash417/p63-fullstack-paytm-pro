@@ -12,7 +12,7 @@ export async function p2pTransfer(to: number, amount: number) {
 		const receiver = await prisma.user.findFirst({ where: { number: String(to) } });
 
 		if (!receiver) return { msg: 'user not found' };
-		const trx = await prisma.$transaction(async (db) => {
+		await prisma.$transaction(async (db) => {
 			// lock the rows
 			await db.$queryRaw`SELECT * FROM "Balance" WHERE "userId" = ${Number(sender)} FOR UPDATE`;
 
@@ -32,9 +32,18 @@ export async function p2pTransfer(to: number, amount: number) {
 				where: { userId: Number(sender) },
 				data: { amount: { decrement: amount } },
 			});
+
+			await db.p2pTransfer.create({
+				data: {
+					fromUserId: Number(sender),
+					toUserId: receiver.id,
+					amount,
+					timestamp: new Date(),
+				},
+			});
 		});
 		return { msg: 'Transaction successful', status: true };
-		// console.log(`result ${trx}`);
+
 	} catch (error) {
 		console.log('transaction failed : ', error);
 		return { msg: 'Transaction failed', status: false };
