@@ -1,7 +1,6 @@
 import db from '@repo/db/client';
 import express, { Request, Response } from 'express';
 
-
 const app = express();
 app.use(express.json());
 
@@ -31,6 +30,7 @@ app.post('/bankWebhook', async (req: Request, res: Response) => {
 					},
 				},
 			}),
+
 			db.onRampTransaction.updateMany({
 				where: {
 					token: paymentInformation.token,
