@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
 import { Providers } from './Provider';
 import { AppbarClient } from './components/AppbarClient';
 import './globals.css';
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
 			<Providers>
 				<body className={inter.className}>
 					<AppbarClient />
-
+					<Toaster />
 					{children}
 				</body>
 			</Providers>
