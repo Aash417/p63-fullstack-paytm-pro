@@ -13,6 +13,9 @@ export async function p2pTransfer(to: number, amount: number) {
 
 		if (!receiver) return { msg: 'user not found' };
 		const trx = await prisma.$transaction(async (db) => {
+			// lock the rows
+			await db.$queryRaw`SELECT * FROM "Balance" WHERE "userId" = ${Number(sender)} FOR UPDATE`;
+
 			const senderBalance = await db.balance.findUnique({
 				where: { userId: Number(sender) },
 			});
