@@ -7,11 +7,16 @@ import { authOptions } from '../../lib/auth';
 
 async function getBalance() {
 	const session = await getServerSession(authOptions);
+	// console.log('session :', session);
+
 	const balance = await prisma.balance.findFirst({
 		where: {
 			userId: Number(session?.user?.id),
 		},
 	});
+	// console.log('balance :', balance);
+	// console.log(`amount: ${balance?.amount} ,locked: ${balance?.locked} `);
+
 	return {
 		amount: balance?.amount || 0,
 		locked: balance?.locked || 0,
@@ -20,11 +25,15 @@ async function getBalance() {
 
 async function getOnRampTransactions() {
 	const session = await getServerSession(authOptions);
+	// console.log('session :', session);
+
 	const txns = await prisma.onRampTransaction.findMany({
 		where: {
 			userId: Number(session?.user?.id),
 		},
 	});
+	// console.log('txns :', txns);
+
 	return txns.map((t) => ({
 		time: t.startTime,
 		amount: t.amount,
@@ -35,7 +44,9 @@ async function getOnRampTransactions() {
 
 export default async function () {
 	const balance = await getBalance();
+	console.log('balance :', balance);
 	const transactions = await getOnRampTransactions();
+	console.log('transactions :', transactions);
 
 	return (
 		<div className='w-screen'>
